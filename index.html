@@ -72,19 +72,24 @@
     <h1>Альфа тестирование будет начато через:</h1>
     <div id="timer" class="timer">00:00:00</div>
     <p class="dates">
-      Начнется 29.11.24 в 15:00<br> 
-      и закончится 1.12.24
     </p>
     <img src="Logo.png" alt="Логотип" class="logo">
   </div>
 
   <script>
-    // Устанавливаем дату начала Альфа тестирования
-    const startDate = new Date('November 29, 2024 15:00:00').getTime();
+    // Получаем текущую дату и устанавливаем время начала (15:00 сегодня)
+    const now = new Date();
+    const startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 15, 0, 0); // Сегодня 15:00
+    const endDate = new Date('December 1, 2024 00:00:00').getTime(); // Дата окончания: 1 декабря 2024
+
+    // Если текущее время уже позже 15:00, устанавливаем startDate на 15:00 завтрашнего дня
+    if (now > startDate) {
+      startDate.setDate(startDate.getDate() + 1); // Устанавливаем 15:00 на следующий день
+    }
 
     function updateTimer() {
-      const now = new Date().getTime(); // Текущее время
-      const timeLeft = startDate - now; // Разница между текущим временем и временем начала
+      const currentTime = new Date().getTime(); // Текущее время
+      const timeLeft = startDate.getTime() - currentTime; // Разница между временем начала и текущим временем
 
       // Расчёт оставшихся часов, минут и секунд
       const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
@@ -98,9 +103,21 @@
       // Обновляем отображение таймера
       document.getElementById("timer").textContent = formattedTime;
 
-      // Если время вышло
+      // Если время прошло (т.е. 15:00 наступило), то отсчитываем до 1 декабря
       if (timeLeft < 0) {
-        document.getElementById("timer").textContent = "Тестирование началось!";
+        const timeLeftToEnd = endDate - currentTime; // Разница между временем окончания и текущим временем
+
+        if (timeLeftToEnd > 0) {
+          const daysToEnd = Math.floor(timeLeftToEnd / (1000 * 60 * 60 * 24));
+          const hoursToEnd = Math.floor((timeLeftToEnd % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+          const minutesToEnd = Math.floor((timeLeftToEnd % (1000 * 60 * 60)) / (1000 * 60));
+          const secondsToEnd = Math.floor((timeLeftToEnd % (1000 * 60)) / 1000);
+
+          const formattedTimeToEnd = `${String(hoursToEnd).padStart(2, '0')}:${String(minutesToEnd).padStart(2, '0')}:${String(secondsToEnd).padStart(2, '0')}`;
+          document.getElementById("timer").textContent = formattedTimeToEnd;
+        } else {
+          document.getElementById("timer").textContent = "Тестирование завершено!";
+        }
       }
     }
 
